@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpotyGame</title>
+    <link rel="icon" type="image/png" href="ftspotify.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="main.css">
+    <link href="https://fonts.cdnfonts.com/css/circular-std" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="logo-container" onclick="app.loadPlaylists()">
+            <img src= "ftspotify.png"  alt="Logo do SpotyGame" class="logo">
+            <h1>SpotyGame</h1>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Pesquisar músicas ou artistas...">
+            <button id="searchButton"><i class="fas fa-search"></i></button>
+        </div>
+
+    </header>
+
+    <div id="teste"></div>
+    <div id="loading" class="status-message loading">
+        <i class="fas fa-spinner fa-spin"></i> Carregando rádios...
+    </div>
+
+    <div id="error" class="status-message error" style="display: none;"></div>
+
+    <div class="grid-container" id="radiosContainer">
+        <!-- Rádios serão carregadas aqui -->
+    </div>
+
+    <!-- Modal de Músicas -->
+    <div class="modal" id="musicModal" onclick="app.closeMusicModal()">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader">
+                <h2 id="modalRadioName">Nome da Rádio</h2>
+                <button class="close-btn" id="closeModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="musicLoading" class="status-message loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i> Carregando conteúdo...
+            </div>
+
+            <div id="musicError" class="status-message error" style="display: none;"></div>
+
+            <!-- Seção de Playlists -->
+            <div class="section-container" id="playlistsSection" style="display: none;">
+                <h2 class="section-title">Playlists</h2>
+                <div class="grid-container" id="playlistsList">
+                    <!-- Playlists serão carregadas aqui -->
+                </div>
+            </div>
+
+            <!-- Seção de Músicas -->
+            <div class="section-container" id="musicasSection">
+                <h2 class="section-title">Músicas</h2>
+                <div class="grid-container" id="musicList">
+                    <!-- Músicas serão carregadas aqui -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Player Fixo -->
+    <div class="now-playing" id="nowPlaying">
+        <div class="now-playing-cover" id="nowPlayingCover"></div>
+
+        <div class="now-playing-info">
+            <div class="now-playing-text">
+                <div class="card-title marquee-container" id="nowPlayingTitle">Música Atual</div>
+                <div class="card-subtitle marquee-container" id="nowPlayingArtist">Artista</div>
+            </div>
+        </div>
+
+        <div class="player-controls">
+            <button class="control-btn" id="prevBtn" title="Música anterior">
+                <i class="fas fa-step-backward"></i>
+            </button>
+            <button class="control-btn" id="playPauseBtn" title="Play/Pause">
+                <i class="fas fa-play" id="playPauseIcon"></i>
+            </button>
+            <button class="control-btn" id="nextBtn" title="Próxima música">
+                <i class="fas fa-step-forward"></i>
+            </button>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="time-display">
+                <span id="currentTime">0:00</span> / <span id="duration">0:00</span>
+            </div>
+        </div>
+        <div class="volume-control">
+            <button id="volumeDown" class="volume-btn"><i class="fas fa-volume-down"></i></button>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
+            <button id="volumeUp" class="volume-btn"><i class="fas fa-volume-up"></i></button>
+        </div>
+
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
