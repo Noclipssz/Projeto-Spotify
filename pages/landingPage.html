@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SpotyGame - Boas-vindas</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    html, body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #000;
+      color: white;
+    }
+
+    #particles-js {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+    }
+
+    nav {
+      background-color: rgba(0, 0, 0, 0.85);
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 1rem 2rem;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #39ff14;
+    }
+
+    nav h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #39ff14;
+    }
+
+    nav button {
+      background-color: #39ff14;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 6px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    nav button:hover {
+      background-color: #2fd80f;
+    }
+
+    header {
+      text-align: center;
+      margin-top: 7rem;
+      font-size: 3rem;
+      font-weight: bold;
+      color: #ffffff;
+      z-index: 1;
+      position: relative;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+      z-index: 1;
+      position: relative;
+      text-align: center;
+    }
+
+    .description, section p {
+      font-size: 1.2rem;
+      color: #ccc;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    section {
+      padding: 3rem 1rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    section h2 {
+      color: #39ff14;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .btn-login {
+      background-color: #39ff14;
+      border: none;
+      padding: 0.8rem 2rem;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin-top: 2rem;
+    }
+
+    .btn-login:hover {
+      background-color: #32e612;
+      transform: scale(1.08);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: #666;
+      font-size: 0.9rem;
+      background-color: #111;
+      z-index: 1;
+      position: relative;
+    }
+
+    .section-bg {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      margin-top: 2rem;
+    }
+
+    .testimonial {
+      font-style: italic;
+      color: #aaa;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="particles-js"></div>
+
+  <nav>
+    <h1>SpotyGame</h1>
+    <button onclick="location.href='login.html'">Entrar</button>
+  </nav>
+
+  <header>Bem-vindo ao SpotyGame</header>
+
+  <div class="container">
+    <p class="description">
+      O universo onde a música dos games ganha vida.<br/>
+      Explore trilhas épicas de jogos como <em>Horizon</em>, <em>GTA</em>, <em>Cyberpunk</em> e muito mais.
+    </p>
+    <button class="btn-login" onclick="location.href='login.html'">Começar agora</button>
+  </div>
+
+  <section class="section-bg">
+    <h2>Por que escolher o SpotyGame?</h2>
+    <p>
+      Porque aqui a experiência sonora é levada a sério. Mais do que apenas ouvir músicas de jogos, você se conecta emocionalmente com os mundos que ama. <br><br>
+      🎧 Navegação simples, sem distrações.<br>
+      🌎 Acesso universal, onde estiver.<br>
+      📚 Catálogo em constante expansão com as melhores trilhas de todos os tempos.<br>
+      🧠 Feito por gamers, para gamers.<br><br>
+      A música é a alma do jogo. Ouça como se estivesse jogando.
+    </p>
+  </section>
+
+  <section>
+    <h2>Recursos Exclusivos</h2>
+    <p>
+      🎮 Modo Imersão: ouça as faixas em sequência com visual interativo.<br>
+      🕹️ Busque por jogo, personagem ou emoção.<br>
+      🌐 Compatível com todos os navegadores.<br>
+    </p>
+  </section>
+
+  <section class="section-bg">
+    <h2>Depoimentos</h2>
+    <p class="testimonial">"Reviver minhas emoções de GTA San Andreas enquanto trabalho? Incrível!" — Ana, 28</p>
+    <p class="testimonial">"A melhor forma de ouvir trilhas sem precisar procurar no YouTube." — Carlos, 21</p>
+    <p class="testimonial">"Nunca pensei que música de jogos me ajudaria tanto a estudar." — Júlia, 19</p>
+  </section>
+
+  <section>
+    <h2>Perguntas Frequentes</h2>
+    <p><strong>O site é gratuito?</strong><br>Sim! Todas as trilhas são de acesso livre.</p>
+    <p><strong>Preciso criar conta?</strong><br>sim, pois usuários logados têm acesso a recursos extras.</p>
+    <p><strong>Tem músicas de consoles antigos?</strong><br>Sim! Nossa base vai de NES até a nova geração.</p>
+  </section>
+
+  <section class="section-bg" style="text-align: center;">
+    <h2>Pronto para começar?</h2>
+    <p>Entre agora e explore o melhor da música gamer. É gratuito, sem anúncios irritantes, feito para você que ama jogos e trilhas sonoras!</p>
+    <button class="btn-login" onclick="location.href='login.html'">Entrar agora</button>
+  </section>
+
+  <footer>
+    © 2025 SpotyGame. Todos os direitos reservados.
+  </footer>
+
+  <!-- particles.js -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    particlesJS("particles-js", {
+      particles: {
+        number: {
+          value: 120,
+          density: {
+            enable: true,
+            value_area: 800
+          }
+        },
+        color: {
+          value: "#39ff14"
+        },
+        shape: {
+          type: "circle"
+        },
+        opacity: {
+          value: 0.8
+        },
+        size: {
+          value: 3,
+          random: true
+        },
+        line_linked: {
+          enable: true,
+          distance: 130,
+          color: "#39ff14",
+          opacity: 0.4,
+          width: 1
+        },
+        move: {
+          enable: true,
+          speed: 1.2
+        }
+      },
+      interactivity: {
+        detect_on: "canvas",
+        events: {
+          onhover: {
+            enable: true,
+            mode: "grab"
+          },
+          onclick: {
+            enable: true,
+            mode: "push"
+          },
+          resize: true
+        },
+        modes: {
+          grab: {
+            distance: 140,
+            line_linked: {
+              opacity: 0.6
+            }
+          },
+          push: {
+            particles_nb: 4
+          }
+        }
+      },
+      retina_detect: true
+    });
+  </script>
+
+</body>
+</html>

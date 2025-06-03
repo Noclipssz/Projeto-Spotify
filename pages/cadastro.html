@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #000;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-image: url('https://static.vecteezy.com/ti/vetor-gratis/p3/5572431-modelo-de-triangulo-prata-escuro-cinza-embacado-vetor.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-blend-mode: overlay;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: -1;
+    }
+
+    .card {
+      background-color: rgba(56, 56, 56, 0.9);
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .card-body {
+      padding: 2.5rem;
+    }
+
+    .register-title {
+      margin-bottom: 2rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      position: relative;
+      padding-bottom: 0.5rem;
+      color: #fff;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .register-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 3px;
+      background-color: #28a745;
+      border-radius: 3px;
+      box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+    }
+
+    .form-input-container {
+      margin-bottom: 1.8rem;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+      color: #ddd;
+      transition: all 0.3s;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-control {
+      background-color: rgba(42, 42, 42, 0.8);
+      border: 1px solid rgba(68, 68, 68, 0.5);
+      border-radius: 0.5rem;
+      color: white;
+      padding: 0.75rem 1rem;
+      transition: all 0.3s;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .form-control:focus {
+      background-color: rgba(51, 51, 51, 0.9);
+      border-color: #28a745;
+      box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25), inset 0 1px 3px rgba(0, 0, 0, 0.2);
+      color: white;
+    }
+
+    .form-control-lg {
+      height: calc(1.5em + 1.5rem + 2px);
+    }
+
+    .btn-custom {
+      background-color: #28a745;
+      border: none;
+      width: 100%;
+      padding: 0.85rem;
+      color: white;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      border-radius: 0.5rem;
+      transition: all 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-custom:hover {
+      background-color: #218838;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-custom:active {
+      transform: translateY(0);
+    }
+
+    .btn-custom::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: rotate(45deg);
+      transition: all 0.5s;
+      pointer-events: none;
+    }
+
+    .btn-custom:hover::after {
+      left: 100%;
+    }
+
+    .back-to-login {
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: #ccc;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    a {
+      color: #28a745 !important;
+      text-decoration: none;
+      transition: all 0.3s;
+      font-weight: 500;
+      text-shadow: none;
+    }
+
+    a:hover {
+      color: #2ecc71 !important;
+      text-decoration: underline;
+    }
+
+    /* Efeito de foco nos inputs */
+    .form-control:focus + .form-label,
+    .form-control:not(:placeholder-shown) + .form-label {
+      transform: translateY(-0.5rem);
+      font-size: 0.8rem;
+      color: #28a745;
+    }
+
+    /* Efeito de loading no submit */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+      vertical-align: middle;
+    }
+
+    .alert {
+      margin-top: 1rem;
+      border-radius: 0.5rem;
+      border: none;
+    }
+
+    .alert-danger {
+      background-color: rgba(220, 53, 69, 0.1);
+      color: #ff6b6b;
+      border: 1px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .alert-success {
+      background-color: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+      border: 1px solid rgba(40, 167, 69, 0.3);
+    }
+
+    /* Estilo para partículas */
+    #particles-js {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: transparent;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+
+  <section class="vh-100 d-flex align-items-center">
+    <div class="container py-5">
+      <div class="row d-flex justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+          <div class="card text-white">
+            <div class="card-body p-5 text-center">
+              <div class="mb-md-5 mt-md-4 pb-5">
+                <h2 class="fw-bold mb-4 text-uppercase register-title">Criar Conta</h2>
+
+                <!-- Formulário de Cadastro -->
+                <form id="registerForm">
+                  <div class="form-input-container">
+                    <input type="text" id="name" class="form-control form-control-lg" placeholder=" " required>
+                    <label class="form-label" for="name">Nome Completo</label>
+                  </div>
+
+                  <div class="form-input-container">
+                    <input type="email" id="email" class="form-control form-control-lg" placeholder=" " required>
+                    <label class="form-label" for="email">E-mail</label>
+                  </div>
+
+                  <div class="form-input-container">
+                    <input type="password" id="password" class="form-control form-control-lg" placeholder=" " required>
+                    <label class="form-label" for="password">Senha</label>
+                  </div>
+
+                  <div class="form-input-container">
+                    <input type="password" id="confirmPassword" class="form-control form-control-lg" placeholder=" " required>
+                    <label class="form-label" for="confirmPassword">Confirmar Senha</label>
+                  </div>
+
+                  <button type="submit" class="btn btn-success btn-lg btn-custom" id="registerButton">
+                    <span id="buttonText">Cadastrar</span>
+                  </button>
+                </form>
+
+                <!-- Alert para mensagens -->
+                <div id="messageAlert" class="alert" style="display: none;"></div>
+
+                <div class="back-to-login">
+                  <p>Já tem uma conta? <a href="login.html" class="fw-bold">Voltar para Login</a></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
+  
+  <script>
+    // Função para cadastrar usuário (conectada à API real)
+    async function registerUser(nome, email, senha) {
+      try {
+        const response = await fetch('http://10.10.30.61:8080/api/users/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            nome: nome,
+            email: email,
+            senha: senha
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Erro no cadastro');
+        }
+
+        const data = await response.json();
+        return { success: true, message: data.message || 'Cadastro realizado com sucesso!' };
+        
+      } catch (error) {
+        console.error('Erro no cadastro:', error);
+        throw error;
+      }
+    }
+
+    // Função para mostrar mensagens
+    function showMessage(message, type = 'danger') {
+      const messageAlert = document.getElementById('messageAlert');
+      messageAlert.textContent = message;
+      messageAlert.className = `alert alert-${type}`;
+      messageAlert.style.display = 'block';
+      
+      // Remove o alerta após 5 segundos
+      setTimeout(() => {
+        messageAlert.style.display = 'none';
+      }, 5000);
+    }
+
+    // Event listener do formulário
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const button = document.getElementById('registerButton');
+      const buttonText = document.getElementById('buttonText');
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const messageAlert = document.getElementById('messageAlert');
+      
+      // Esconde alertas anteriores
+      messageAlert.style.display = 'none';
+      
+      // Validações básicas
+      if (!name || !email || !password || !confirmPassword) {
+        showMessage('Todos os campos são obrigatórios!', 'danger');
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        showMessage('As senhas não coincidem!', 'danger');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showMessage('A senha deve ter pelo menos 6 caracteres!', 'danger');
+        return;
+      }
+      
+      // Desabilita o botão e mostra loading
+      button.disabled = true;
+      buttonText.innerHTML = '<span class="loading"></span> Cadastrando...';
+      
+      try {
+        const result = await registerUser(name, email, password);
+        
+        // Mostra mensagem de sucesso
+        showMessage(result.message, 'success');
+        
+        // Limpa o formulário
+        document.getElementById('registerForm').reset();
+        
+        // Redireciona para login após 2 segundos
+        setTimeout(() => {
+          showMessage('Redirecionando para login...', 'success');
+          window.location.href = 'login.html';
+        }, 2000);
+        
+      } catch (error) {
+        // Mostra mensagem de erro
+        let errorMessage = 'Erro no cadastro';
+        if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        showMessage(errorMessage, 'danger');
+      } finally {
+        // Reabilita o botão
+        button.disabled = false;
+        buttonText.textContent = 'Cadastrar';
+      }
+    });
+</script>
+
+  <!-- Script das partículas -->
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    // Inicializa as partículas apenas se a biblioteca foi carregada
+    if (typeof particlesJS !== 'undefined') {
+      particlesJS("particles-js", {
+        particles: {
+          number: {
+            value: 120,
+            density: {
+              enable: true,
+              value_area: 800
+            }
+          },
+          color: {
+            value: "#39ff10"
+          },
+          shape: {
+            type: "circle"
+          },
+          opacity: {
+            value: 0.8
+          },
+          size: {
+            value: 3,
+            random: true
+          },
+          line_linked: {
+            enable: true,
+            distance: 230,
+            color: "#39ff14",
+            opacity: 0.4,
+            width: 1
+          },
+          move: {
+            enable: true,
+            speed: 1.2
+          }
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: {
+            onhover: {
+              enable: true,
+              mode: "grab"
+            },
+            onclick: {
+              enable: true,
+              mode: "push"
+            },
+            resize: true
+          },
+          modes: {
+            grab: {
+              distance: 140,
+              line_linked: {
+                opacity: 0.6
+              }
+            },
+            push: {
+              particles_nb: 4
+            }
+          }
+        },
+        retina_detect: true
+      });
+    }
+  </script>
+</body>
+</html>

@@ -7,7 +7,6 @@ const elements = {
     searchInput: document.getElementById('searchInput'),
     genreSelect: document.getElementById('genreSelect'),
     searchButton: document.getElementById('searchButton'),
-    teste: document.getElementById('teste'),
     radiosContainer: document.getElementById('radiosContainer'),
     loading: document.getElementById('loading'),
     error: document.getElementById('error'),
@@ -55,7 +54,7 @@ const playerState = {
 };
 
 const config = {
-    apiBaseUrl: 'http://10.10.28.205:8080',
+    apiBaseUrl: 'http://10.10.30.61:8080',
     defaultCover: 'https://via.placeholder.com/300/181818/282828?text=🎵'
 };
 
@@ -282,7 +281,9 @@ loadPlaylists: async () => {
 
 displayPlaylists: (radio, playlists) => {
         elements.radiosContainer.innerHTML = `
-
+            <div class="breadcrumb">
+                <span onclick="app.loadPlaylists()">Rádios</span> > ${radio.nome}
+            </div>
         `;
         
         playlists.forEach(playlist => {
@@ -343,7 +344,7 @@ displayPlaylists: (radio, playlists) => {
     displaySubPlaylists: (parentPlaylist, subPlaylists) => {
         elements.radiosContainer.innerHTML = `
             <div class="breadcrumb">
-                <span onclick="app.loadPlaylists()">Playlists</span> > ${parentPlaylist.nome} fdfdfdf
+                <span onclick="app.loadPlaylists()">Playlists</span> > ${parentPlaylist.nome}
             </div>
         `;
         
