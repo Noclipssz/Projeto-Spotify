@@ -1,44 +1,205 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SpotyGame</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/main.css">
   <link href="https://fonts.cdnfonts.com/css/circular-std" rel="stylesheet">
-  <script src="js/particulas.js"></script>
+  <link rel="stylesheet" href="css/main.css">
+  <style>
+    /* Estilos da sidebar */
+    .sidebar {
+      width: 300px;
+      height: 100vh;
+      background-color: #000;
+      padding: 20px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      overflow-y: auto;
+      z-index: 10;
+    }
+    
+    .main-content {
+      margin-left: 300px;
+      padding: 20px;
+      position: relative;
+      padding-bottom: 80px;
+    }
+    
+    header {
+      background: #000;
+      padding: 15px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .welcome-message {
+      color: #fff;
+      font-size: 18px;
+      margin-right: 20px;
+    }
+    
+    .search-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-grow: 1;
+      max-width: 600px;
+    }
+    
+    #searchInput {
+      padding: 8px 15px;
+      border-radius: 20px;
+      border: none;
+      flex-grow: 1;
+      background: #282828;
+      color: white;
+    }
+    
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      color: #b3b3b3;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+    
+    .menu-item:hover {
+      color: white;
+      background: #282828;
+    }
+    
+    .menu-item i {
+      margin-right: 15px;
+      font-size: 20px;
+    }
+    
+    .library-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      color: #b3b3b3;
+    }
+    
+    .playlist {
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 5px;
+    }
+    
+    .playlist:hover {
+      background: #282828;
+    }
+    
+    .playlist-title {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .playlist-info {
+      font-size: 12px;
+      color: #b3b3b3;
+    }
+    
+    .favorites .playlist {
+      background: #1DB95420;
+    }
+    
+    .favorites .playlist-title {
+      color: #1DB954;
+    }
+    
+    .divider {
+      height: 1px;
+      background: #282828;
+      margin: 15px 0;
+    }
+    
+    /* Ajustes para o player */
+    .now-playing {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      z-index: 100;
+    }
+  </style>
 </head>
 
 <body>
   <div id="particles-js"></div>
-
-  <header>
-    <div class="logo-container" onclick="app.loadPlaylists()">
-      <img src="img/ftspotify.png" alt="Logo do SpotyGame" class="logo">
+  
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo-container" >
+      <img src="img/ftspotify.png" alt="Logo SpotyGame" class="logo">
       <h1>SpotyGame</h1>
     </div>
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Pesquisar músicas ou artistas...">
-      <button id="searchButton"><i class="fas fa-search"></i></button>
+
+    <div class="menu">
+      <div class="menu-item" >
+        <i class="fas fa-home"></i>
+        <span>Início</span>
+      </div>
+      
+      <div class="menu-item" onclick="document.getElementById('searchInput').focus()">
+        <i class="fas fa-search"></i>
+        <span>Buscar</span>
+      </div>
     </div>
 
-  </header>
+    <div class="divider"></div>
 
-  <div id="loading" class="status-message loading">
-    <i class="fas fa-spinner fa-spin"></i> Carregando rádios...
+    <div class="library">
+      <div class="library-header">
+        <h2>Sua Biblioteca</h2>
+        <i class="fas fa-plus"></i>
+      </div>
+
+      <!-- Playlist de músicas curtidas -->
+      <div class="favorites">
+
+      </div>
+
+      <!-- Lista de playlists do usuário -->
+      <div id="userPlaylists"></div>
+    </div>
   </div>
 
-  <div id="error" class="status-message error" style="display: none;"></div>
+  <!-- Conteúdo Principal -->
+  <div class="main-content">
+    <header>
+      <div class="welcome-message" id="welcomeMessage"></div>
+      <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Pesquisar músicas ou artistas...">
+        <button id="clearSearch" class="clear-btn" title="Limpar pesquisa">
+          <i class="fas fa-times"></i>
+        </button>
+        <button id="searchButton"><i class="fas fa-search"></i></button>
+      </div>
+    </header>
 
-  <div class="grid-container" id="radiosContainer">
-    <!-- Rádios serão carregadas aqui -->
+    <div id="loading" class="status-message loading">
+      <i class="fas fa-spinner fa-spin"></i> Carregando...
+    </div>
+
+    <div id="error" class="status-message error" style="display: none;"></div>
+
+    <div class="grid-container" id="radiosContainer"></div>
   </div>
 
   <!-- Modal de Músicas -->
-  <div class="modal" id="musicModal" onclick="app.closeMusicModal()">
-    <div class="modal-content">
+  <div class="modal" id="musicModal">
+    <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header" id="modalHeader">
         <h2 id="modalRadioName">Nome da Rádio</h2>
         <button class="close-btn" id="closeModal">
@@ -52,20 +213,9 @@
 
       <div id="musicError" class="status-message error" style="display: none;"></div>
 
-      <!-- Seção de Playlists -->
-      <div class="section-container" id="playlistsSection" style="display: none;">
-        <h2 class="section-title">Playlists</h2>
-        <div class="grid-container" id="playlistsList">
-          <!-- Playlists serão carregadas aqui -->
-        </div>
-      </div>
-
-      <!-- Seção de Músicas -->
       <div class="section-container" id="musicasSection">
         <h2 class="section-title">Músicas</h2>
-        <div class="grid-container" id="musicList">
-          <!-- Músicas serão carregadas aqui -->
-        </div>
+        <div class="grid-container" id="musicList"></div>
       </div>
     </div>
   </div>
@@ -76,8 +226,8 @@
 
     <div class="now-playing-info">
       <div class="now-playing-text">
-        <div class="card-title marquee-container" id="nowPlayingTitle">Música Atual</div>
-        <div class="card-subtitle marquee-container" id="nowPlayingArtist">Artista</div>
+        <div class="card-title marquee-container" id="nowPlayingTitle">Nenhuma música selecionada</div>
+        <div class="card-subtitle marquee-container" id="nowPlayingArtist">Selecione uma música para começar</div>
       </div>
     </div>
 
@@ -86,7 +236,7 @@
         <i class="fas fa-step-backward"></i>
       </button>
       <button class="control-btn" id="playPauseBtn" title="Play/Pause">
-        <i class="fas fa-play" id="playPauseIcon"></i>
+        <i class="fas fa-play"></i>
       </button>
       <button class="control-btn" id="nextBtn" title="Próxima música">
         <i class="fas fa-step-forward"></i>
@@ -103,74 +253,24 @@
       <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
       <button id="volumeUp" class="volume-btn"><i class="fas fa-volume-up"></i></button>
     </div>
-
   </div>
-
-  <script src="js/main.js"></script>
-  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script><!-- MOVER PARA AQUI -->
   <script>
-    particlesJS("particles-js", {
-      particles: {
-        number: {
-          value: 120,
-          density: {
-            enable: true,
-            value_area: 800
-          }
-        },
-        color: {
-          value: "#39ff14"
-        },
-        shape: {
-          type: "circle"
-        },
-        opacity: {
-          value: 0.8
-        },
-        size: {
-          value: 3,
-          random: true
-        },
-        line_linked: {
-          enable: true,
-          distance: 130,
-          color: "#39ff14",
-          opacity: 0.4,
-          width: 1
-        },
-        move: {
-          enable: true,
-          speed: 1.2
+    // Configuração das partículas
+    document.addEventListener('DOMContentLoaded', function() {
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 80, density: { enable: true, value_area: 800 } },
+          color: { value: "#1DB954" },
+          shape: { type: "circle" },
+          opacity: { value: 0.5 },
+          size: { value: 3, random: true },
+          line_linked: { enable: true, distance: 150, color: "#1DB954", opacity: 0.4, width: 1 },
+          move: { enable: true, speed: 1.5 }
         }
-      },
-      interactivity: {
-        detect_on: "canvas",
-        events: {
-          onhover: {
-            enable: true,
-            mode: "grab"
-          },
-          onclick: {
-            enable: true,
-            mode: "push"
-          },
-          resize: true
-        },
-        modes: {
-          grab: {
-            distance: 140,
-            line_linked: {
-              opacity: 0.6
-            }
-          },
-          push: {
-            particles_nb: 4
-          }
-        }
-      },
-      retina_detect: true
+      });
     });
   </script>
+    <script src="js/main.js"></script> 
 </body>
-
 </html>

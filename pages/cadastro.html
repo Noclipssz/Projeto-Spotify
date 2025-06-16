@@ -283,7 +283,7 @@
     // Função para cadastrar usuário (conectada à API real)
     async function registerUser(nome, email, senha) {
       try {
-        const response = await fetch('http://10.10.30.61:8080/api/users/register', {
+        const response = await fetch('http://localhost:8080/users/register', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

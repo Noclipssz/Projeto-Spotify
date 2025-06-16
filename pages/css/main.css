@@ -16,6 +16,32 @@
   box-sizing: border-box;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+.empty-playlist-message {
+    text-align: center;
+    padding: 40px;
+    color: #b3b3b3;
+}
+
+.empty-playlist-message i {
+    font-size: 50px;
+    margin-bottom: 20px;
+    color: #1DB954;
+}
+
+.empty-playlist-message p {
+    margin: 10px 0 20px;
+    font-size: 18px;
+}
+
+.empty-playlist-message button {
+    background: #1DB954;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
 
 body {
   background-color: var(--dark-bg);
