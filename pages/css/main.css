@@ -50,6 +50,126 @@ body {
   min-height: 100vh;
 }
 
+/* Playlists Favoritas na Sidebar */
+.favorites {
+  padding: 15px 0;
+  border-bottom: 1px solid #282828;
+}
+
+.section-title {
+  color: #b3b3b3;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-playlist {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+
+.sidebar-playlist:hover {
+  background-color: #282828;
+}
+
+.playlist-cover {
+  width: 50px;
+  height: 50px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px;
+  position: relative;
+}
+
+.favorite-star {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background: #1DB954;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: white;
+}
+
+.playlist-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.playlist-name {
+  font-size: 14px;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlist-description {
+  font-size: 12px;
+  color: #b3b3b3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Botão de Favorito no Modal */
+.favorite-btn-modal {
+  position: absolute;
+  top: 15px;
+  right: 50px;
+  background: transparent;
+  border: none;
+  color: #b3b3b3;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+}
+.radio-group {
+    margin-bottom: 30px;
+}
+
+.group-title {
+    color: #fff;
+    font-size: 1.5rem;
+    margin: 0 0 15px 10px;
+    font-weight: 600;
+}
+
+.group-radios {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 0 10px;
+}
+
+.favorite-btn-modal.active, 
+.favorite-btn-modal:hover {
+  color: #1DB954;
+  transform: scale(1.1);
+}
+
+.empty-playlist-message {
+  color: #b3b3b3;
+  font-size: 13px;
+  padding: 10px;
+  text-align: center;
+}
 /* Header */
 header {
   display: flex;

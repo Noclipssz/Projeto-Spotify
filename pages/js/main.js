@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Sidebar
         userPlaylists: document.getElementById('userPlaylists'),
+        favorites: document.querySelector('.favorites'),
 
         // Modal
         musicModal: document.getElementById('musicModal'),
@@ -77,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
         volumeUp: document.getElementById('volumeUp')
     };
 
-    // 4. Estado da aplicação (mantendo a estrutura original do player)
+    // 4. Estado da aplicação
     const playerState = {
         currentRadio: null,
         currentPlaylist: null,
@@ -103,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    // 5. Funções utilitárias (combinando ambas as versões)
+    // 5. Funções utilitárias
     const utils = {
         formatDuration: (seconds) => {
             const mins = Math.floor(seconds / 60);
@@ -153,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     };
 
-    // 6. Funções da API (mantendo a estrutura original)
+    // 6. Funções da API
     const api = {
         request: async (url, options = {}) => {
             const token = sessionStorage.getItem('authToken');
@@ -214,7 +215,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const songs = await response.json();
 
-                // Verifica se a resposta é um array vazio
                 if (!Array.isArray(songs) || songs.length === 0) {
                     throw new Error('Playlist vazia');
                 }
@@ -222,10 +222,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 return songs;
             } catch (error) {
                 console.error('Erro ao buscar músicas da playlist:', error);
-                throw error; // Re-lança o erro para ser tratado pelo chamador
+                throw error;
             }
         },
-
 
         search: async (query) => {
             const response = await api.request(`${config.apiBaseUrl}/api/search?termo=${encodeURIComponent(query)}`);
@@ -249,43 +248,262 @@ document.addEventListener('DOMContentLoaded', function () {
             const response = await api.request(`${config.apiBaseUrl}/api/radios/${radioId}/playlists/${playlistId}/musicas`);
             if (!response || !response.ok) return [];
             return await response.json();
+        },
+
+        addFavoritePlaylist: async (playlistId) => {
+            const response = await api.request(
+                `${config.apiBaseUrl}/api/usuario-playlist-favoritas/${userId}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ playlistId })
+                }
+            );
+            return response;
+        },
+
+        removeFavoritePlaylist: async (playlistId) => {
+            const response = await api.request(
+                `${config.apiBaseUrl}/api/usuario-playlist-favoritas/${userId}/${playlistId}`,
+                { method: 'DELETE' }
+            );
+            return response;
         }
     };
 
-    // 7. Aplicação principal (integrando ambas as versões)
+    // Funções para gerenciar playlists favoritas
+    async function loadFavoritePlaylists() {
+        try {
+            const response = await api.request(`${config.apiBaseUrl}/api/usuario-playlist-favoritas/${userId}`);
+            return await response.json();
+        } catch (error) {
+            utils.handleError(elements.error, `Erro ao carregar favoritas: ${error.message}`);
+            return [];
+        }
+    }
+
+    function displayFavoritePlaylists(playlists) {
+        if (!elements.favorites) return;
+        
+        elements.favorites.innerHTML = '';
+
+        const title = document.createElement('div');
+        title.className = 'section-title';
+        title.innerHTML = '<i class="fas fa-star"></i> <span>Playlists Favoritas</span>';
+        elements.favorites.appendChild(title);
+
+        if (!playlists || playlists.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'empty-playlist-message';
+            emptyMsg.textContent = 'Nenhuma playlist favoritada';
+            elements.favorites.appendChild(emptyMsg);
+            return;
+        }
+
+        playlists.forEach(playlist => {
+            const playlistElement = document.createElement('div');
+            playlistElement.className = 'sidebar-playlist';
+            playlistElement.dataset.id = playlist.playlistId;
+            playlistElement.innerHTML = `
+                <div class="playlist-cover" 
+                     style="background-image: url('${playlist.capaUrl || config.defaultCover}')">
+                    <div class="favorite-star active">
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <div class="playlist-info">
+                    <div class="playlist-name">${playlist.nome}</div>
+                    <div class="playlist-description">${playlist.descricao || 'Playlist'}</div>
+                </div>
+            `;
+
+            playlistElement.addEventListener('click', () => {
+                openPlaylistModal(playlist);
+            });
+
+            elements.favorites.appendChild(playlistElement);
+        });
+    }
+
+    async function openPlaylistModal(playlist) {
+        elements.musicList.innerHTML = '';
+        elements.musicError.style.display = 'none';
+        elements.musicLoading.style.display = 'block';
+        
+        playerState.currentPlaylist = playlist;
+        elements.modalHeader.style.backgroundImage = `url('${playlist.capaUrl || config.defaultCover}')`;
+        elements.modalRadioName.textContent = playlist.nome;
+        elements.musicModal.style.display = 'block';
+        
+        await addFavoriteButtonToModal(playlist);
+        loadPlaylistMusics(playlist.playlistId);
+    }
+
+    async function addFavoriteButtonToModal(playlist) {
+        const modalHeader = document.querySelector('.modal-header');
+        
+        const existingBtn = document.querySelector('.favorite-btn-modal');
+        if (existingBtn) existingBtn.remove();
+        
+        const favButton = document.createElement('button');
+        favButton.className = 'favorite-btn-modal';
+        favButton.innerHTML = `<i class="fas fa-star"></i>`;
+        
+        const isFavorite = await checkIfPlaylistIsFavorite(playlist.playlistId);
+        
+        if (isFavorite) {
+            favButton.classList.add('active');
+            favButton.title = 'Remover dos favoritos';
+        } else {
+            favButton.title = 'Adicionar aos favoritos';
+        }
+        
+        favButton.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            await toggleFavoritePlaylist(playlist, favButton);
+        });
+        
+        modalHeader.appendChild(favButton);
+    }
+
+    async function checkIfPlaylistIsFavorite(playlistId) {
+        try {
+            const favoritePlaylists = await loadFavoritePlaylists();
+            return favoritePlaylists.some(playlist => playlist.playlistId === playlistId);
+        } catch (error) {
+            console.error('Erro ao verificar favoritos:', error);
+            return false;
+        }
+    }
+
+    async function toggleFavoritePlaylist(playlist, buttonElement) {
+        try {
+            const isFavorite = buttonElement.classList.contains('active');
+            let response;
+            
+            if (isFavorite) {
+                response = await api.removeFavoritePlaylist(playlist.playlistId);
+            } else {
+                response = await api.addFavoritePlaylist(playlist.playlistId);
+            }
+
+            if (response.ok) {
+                buttonElement.classList.toggle('active');
+                buttonElement.title = isFavorite ? 'Adicionar aos favoritos' : 'Remover dos favoritos';
+                
+                const playlists = await loadFavoritePlaylists();
+                displayFavoritePlaylists(playlists);
+            } else {
+                throw new Error('Falha na operação');
+            }
+        } catch (error) {
+            console.error('Erro ao favoritar/desfavoritar:', error);
+            utils.handleError(elements.error, 'Erro ao atualizar favoritos');
+        }
+    }
+
+    async function loadPlaylistMusics(playlistId) {
+        try {
+            elements.musicLoading.style.display = 'block';
+            elements.musicError.style.display = 'none';
+            elements.musicList.innerHTML = '';
+
+            const songs = await api.getPlaylistSongs(playlistId);
+            playerState.playlist = songs;
+            displayMusicas(songs);
+
+        } catch (error) {
+            let errorMessage = `Erro ao carregar músicas: ${error.message}`;
+
+            if (error.message.includes('vazia')) {
+                errorMessage = 'Esta playlist está vazia';
+                elements.musicList.innerHTML = `
+                    <div class="empty-playlist-message">
+                        <i class="fas fa-music"></i>
+                        <p>Esta playlist está vazia</p>
+                        <button onclick="app.loadPlaylists()">Voltar para playlists</button>
+                    </div>
+                `;
+            } else {
+                utils.handleError(elements.musicError, errorMessage);
+            }
+        } finally {
+            elements.musicLoading.style.display = 'none';
+        }
+    }
+
+    function displayMusicas(musicas) {
+        if (!elements.musicList) return;
+
+        elements.musicList.innerHTML = '';
+
+        if (!musicas || musicas.length === 0) {
+            elements.musicList.innerHTML = `
+                <div class="empty-playlist-message">
+                    <i class="fas fa-music"></i>
+                    <p>Nenhuma música encontrada</p>
+                </div>
+            `;
+            return;
+        }
+
+        musicas.forEach((musica, index) => {
+            const card = document.createElement('div');
+            card.className = 'music';
+            card.innerHTML = `
+                <div class="music-container">
+                    <div class="music-image" style="background-image: url('${musica.capaUrl || playerState.currentPlaylist?.capaUrl || config.defaultCover}')"></div>
+                    <div class="play-overlay">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="music-info">
+                    <div class="music-title">${musica.titulo}</div>
+                    <div class="music-subtitle">${musica.artista}</div>
+                    <div class="music-duration">${utils.formatDuration(musica.duracaoSegundos)}</div>
+                </div>
+            `;
+
+            card.addEventListener('click', () => {
+                app.playMusic(index);
+            });
+
+            elements.musicList.appendChild(card);
+        });
+    }
+
+    function closeMusicModal() {
+        elements.musicModal.style.display = 'none';
+        elements.musicList.innerHTML = '';
+        elements.modalHeader.style.backgroundImage = '';
+        elements.modalRadioName.textContent = '';
+        playerState.currentPlaylist = null;
+    }
+
+    // 7. Aplicação principal
     const app = {
         init: function () {
-            // Configurar mensagem de boas-vindas
             if (elements.welcomeMessage) {
                 elements.welcomeMessage.textContent = `Bem-vindo, ${userName}`;
             }
 
-            // Configurar event listeners
             this.setupEventListeners();
-
-            // Verificar overflow de texto
             utils.checkTextOverflow();
-
-            // Carregar dados iniciais
             this.loadInitialData();
         },
 
         setupEventListeners: function () {
             document.querySelector('.logo-container')?.addEventListener('click', () => this.loadPlaylists());
-
-            // Menu item
             document.querySelector('.menu-item')?.addEventListener('click', () => this.loadPlaylists());
-
-            // Breadcrumb (adicione uma classe para facilitar)
+            
             document.querySelectorAll('.breadcrumb span').forEach(el => {
                 el.addEventListener('click', () => this.loadRadios());
             });
 
-            // Botão de voltar (adicione uma classe)
             document.querySelectorAll('.empty-playlist-message button').forEach(el => {
                 el.addEventListener('click', () => this.loadPlaylists());
             });
-            // Pesquisa
+
             if (elements.searchButton) {
                 elements.searchButton.addEventListener('click', () => this.performSearch());
             }
@@ -300,7 +518,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 elements.clearSearch.addEventListener('click', () => this.clearSearch());
             }
 
-            // Player
             if (elements.playPauseBtn) {
                 elements.playPauseBtn.addEventListener('click', () => this.togglePlayPause());
             }
@@ -313,12 +530,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 elements.prevBtn.addEventListener('click', () => this.playPrevious());
             }
 
-            // Modal
             if (elements.closeModal) {
-                elements.closeModal.addEventListener('click', () => this.closeMusicModal());
+                elements.closeModal.addEventListener('click', () => closeMusicModal());
             }
 
-            // Volume
             if (elements.volumeSlider) {
                 elements.volumeSlider.addEventListener('input', (e) => {
                     playerState.audioPlayer.volume = e.target.value;
@@ -339,7 +554,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
 
-            // Barra de progresso
             const progressContainer = document.querySelector('.progress-container');
             if (progressContainer) {
                 progressContainer.addEventListener('click', (e) => {
@@ -356,7 +570,6 @@ document.addEventListener('DOMContentLoaded', function () {
             utils.showLoading();
 
             try {
-                // Carregar playlists do usuário e favoritas em paralelo
                 const [playlists, favorites] = await Promise.all([
                     api.getUserPlaylists(),
                     api.getFavoritePlaylists()
@@ -365,10 +578,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 playerState.userPlaylists = playlists;
                 playerState.favoritePlaylists = favorites;
 
-                // Exibir playlists na sidebar
                 this.displayUserPlaylists();
-
-                // Carregar conteúdo inicial (rádios)
+                displayFavoritePlaylists(favorites);
                 this.loadRadios();
 
             } catch (error) {
@@ -383,7 +594,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             elements.userPlaylists.innerHTML = '';
 
-            // Playlist de músicas curtidas (especial)
             const favoritesItem = document.createElement('div');
             favoritesItem.className = 'playlist favorites';
             favoritesItem.innerHTML = `
@@ -393,7 +603,6 @@ document.addEventListener('DOMContentLoaded', function () {
             favoritesItem.addEventListener('click', () => this.loadFavoriteSongs());
             elements.userPlaylists.appendChild(favoritesItem);
 
-            // Demais playlists do usuário
             playerState.userPlaylists.forEach(playlist => {
                 const isFavorite = playerState.favoritePlaylists.some(fav => fav.playlistId === playlist.id);
                 const playlistElement = document.createElement('div');
@@ -418,17 +627,14 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const favoriteSongs = await api.getFavoriteSongs();
                 if (!favoriteSongs || favoriteSongs.length === 0) {
-                    throw new Error('Nenhuma música favorita encontrada');
                 }
 
-                // Criar uma "rádio" fictícia para as músicas favoritas
                 const favoriteRadio = {
                     id: 'favorites',
                     nome: 'Músicas Curtidas',
                     capaUrl: config.defaultCover
                 };
 
-                // Exibir como uma playlist especial
                 this.displaySongsAsPlaylist(favoriteRadio, favoriteSongs);
 
             } catch (error) {
@@ -437,6 +643,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 utils.hideLoading();
             }
         },
+
         openUserPlaylist: async function (playlist) {
             elements.musicModal.style.display = 'block';
             elements.modalHeader.style.backgroundImage = `url('${playlist.capaUrl || config.defaultCover}')`;
@@ -449,21 +656,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const songs = await api.getPlaylistSongs(playlist.id);
                 playerState.playlist = songs;
-                this.displayMusicas(songs);
+                displayMusicas(songs);
 
             } catch (error) {
                 let errorMessage = `Erro ao carregar músicas: ${error.message}`;
 
                 if (error.message.includes('vazia')) {
                     errorMessage = 'Esta playlist está vazia';
-                    // Mostra mensagem mais amigável para playlists vazias
                     elements.musicList.innerHTML = `
-                <div class="empty-playlist-message">
-                    <i class="fas fa-music"></i>
-                    <p>Esta playlist está vazia</p>
-                    <button onclick="app.loadPlaylists()">Voltar para playlists</button>
-                </div>
-            `;
+                        <div class="empty-playlist-message">
+                            <i class="fas fa-music"></i>
+                            <p>Esta playlist está vazia</p>
+                            <button onclick="app.loadPlaylists()">Voltar para playlists</button>
+                        </div>
+                    `;
                 } else {
                     utils.handleError(elements.musicError, errorMessage);
                 }
@@ -471,40 +677,117 @@ document.addEventListener('DOMContentLoaded', function () {
                 elements.musicLoading.style.display = 'none';
             }
         },
-        loadPlaylists: async () => {
-        try {
-            elements.loading.style.display = 'block';
-            const response = await fetch(`${config.apiBaseUrl}/api/radios`);
-            if (!response.ok) throw new Error(`Erro ${response.status}`);
-            
-            const radios = await response.json(); // Agora recebe diretamente as rádios
-            app.displayRadios(radios); // Renomeie esta função para melhor clareza
-        } catch (error) {
-            utils.handleError(elements.error, `Erro ao carregar rádios: ${error.message}`);
-        } finally {
-            elements.loading.style.display = 'none';
-        }
-    },
 
-
-        loadRadios: async function () {
-            utils.showLoading();
-            elements.radiosContainer.innerHTML = '';
-
+        loadPlaylists: async function () {
             try {
-                const radios = await api.getRadios();
-                if (!radios || radios.length === 0) {
-                    throw new Error('Nenhuma rádio encontrada');
-                }
-
+                elements.loading.style.display = 'block';
+                const response = await fetch(`${config.apiBaseUrl}/api/radios`);
+                if (!response.ok) throw new Error(`Erro ${response.status}`);
+                
+                const radios = await response.json();
                 this.displayRadios(radios);
-
             } catch (error) {
                 utils.handleError(elements.error, `Erro ao carregar rádios: ${error.message}`);
             } finally {
-                utils.hideLoading();
+                elements.loading.style.display = 'none';
             }
         },
+
+// Substituir a função loadRadios por:
+loadRadios: async function () {
+    utils.showLoading();
+    elements.radiosContainer.innerHTML = '';
+
+    try {
+        const response = await api.request(`${config.apiBaseUrl}/api/radios/grouped`);
+        if (!response.ok) throw new Error('Erro ao carregar rádios');
+        
+        const groupedRadios = await response.json();
+        this.displayGroupedRadios(groupedRadios);
+
+    } catch (error) {
+        utils.handleError(elements.error, `Erro ao carregar rádios: ${error.message}`);
+    } finally {
+        utils.hideLoading();
+    }
+},
+
+displayGroupedRadios: function(groupedRadios) {
+    elements.radiosContainer.innerHTML = '';
+
+    const groupsContainer = document.createElement('div');
+    groupsContainer.className = 'radio-groups-container';
+
+    for (const [groupName, radios] of Object.entries(groupedRadios)) {
+        if (radios.length === 0) continue;
+
+        const groupSection = document.createElement('div');
+        groupSection.className = 'radio-group';
+        groupSection.innerHTML = `
+            <h2 class="group-title">${this.formatGroupName(groupName)}</h2>
+            <div class="group-radios" id="group-${groupName}"></div>
+        `;
+
+        const radiosContainer = groupSection.querySelector(`.group-radios`);
+        
+        radios.forEach(radio => {
+            const card = this.createRadioCard(radio);
+            radiosContainer.appendChild(card);
+        });
+
+        groupsContainer.appendChild(groupSection);
+    }
+
+    elements.radiosContainer.appendChild(groupsContainer);
+},
+
+formatGroupName: function(name) {
+    const names = {
+        'corrida': 'Jogos de Corrida',
+        'esporte': 'Jogos de Esporte',
+        'rpg': 'RPGs',
+        'fps': 'FPS',
+        'simulacao': 'Simulação',
+        'musica': 'Jogos de Música',
+        'acao': 'Ação/Aventura'
+    };
+    return names[name] || name;
+},
+
+createRadioCard: function(radio) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+        <div class="cover-container">
+            <div class="cover-image" style="background-image: url('${radio.capaUrl || config.defaultCover}')"></div>
+            <div class="play-overlay">
+                <i class="fas fa-play"></i>
+            </div>
+        </div>
+        <div class="card-info">
+            <div class="card-title">${radio.nome}</div>
+            ${radio.playlists?.length > 0 ? 
+              `<div class="card-subtitle">${radio.playlists.length} playlists</div>` : 
+              '<div class="card-subtitle">Rádio</div>'}
+        </div>
+    `;
+
+    card.addEventListener('click', () => {
+        if (radio.playlists?.length > 0) {
+            this.openRadioPlaylists(radio);
+        } else {
+            // Se não tem playlists, tratar como playlist única
+            this.openPlaylistMusicas(radio, {
+                id: radio.id,
+                nome: radio.nome,
+                descricao: `Músicas de ${radio.nome}`,
+                capaUrl: radio.capaUrl
+            });
+        }
+    });
+
+    return card;
+},
 
         displayRadios: function (radios) {
             if (!elements.radiosContainer) return;
@@ -550,33 +833,96 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         },
 
-        displayPlaylists: function (radio, playlists) {
-            elements.radiosContainer.innerHTML = `
-                <div class="breadcrumb">
-                    <span onclick="app.loadRadios()">Rádios</span> > ${radio.nome}
-                </div>
-            `;
+displayPlaylists: function (radio, playlists) {
+    elements.radiosContainer.innerHTML = `
+        <div class="breadcrumb">
+            <span onclick="app.loadRadios()">Rádios</span> > ${radio.nome}
+        </div>
+    `;
 
-            playlists.forEach(playlist => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="cover-container">
-                        <div class="cover-image" style="background-image: url('${playlist.capaUrl || radio.capaUrl || config.defaultCover}')"></div>
-                    </div>
-                    <div class="card-info">
-                        <div class="card-title">${playlist.nome}</div>
-                        <div class="card-subtitle">${playlist.descricao || 'Playlist de músicas'}</div>
-                    </div>
-                `;
+    playlists.forEach(playlist => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.playlistId = playlist.id;
+        
+        // Criar elemento de estrela de favoritos
+        const favoriteStar = document.createElement('div');
+        favoriteStar.className = 'favorite-star';
+        favoriteStar.innerHTML = '<i class="far fa-star"></i>';
+        
+        // Verificar se a playlist é favorita
+        this.checkIfPlaylistIsFavorite(playlist.id).then(isFavorite => {
+            if (isFavorite) {
+                favoriteStar.innerHTML = '<i class="fas fa-star"></i>';
+                favoriteStar.classList.add('active');
+            }
+        });
 
-                card.addEventListener('click', () => {
-                    this.openPlaylistMusicas(radio, playlist);
-                });
+        // Adicionar evento de clique para favoritar/desfavoritar
+        favoriteStar.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            try {
+                const isFavorite = favoriteStar.classList.contains('active');
+                
+                let response;
+                if (isFavorite) {
+                    response = await api.removeFavoritePlaylist(playlist.id);
+                } else {
+                    response = await api.addFavoritePlaylist(playlist.id);
+                }
 
-                elements.radiosContainer.appendChild(card);
-            });
-        },
+                if (response.ok) {
+                    favoriteStar.classList.toggle('active');
+                    favoriteStar.innerHTML = isFavorite 
+                        ? '<i class="far fa-star"></i>' 
+                        : '<i class="fas fa-star"></i>';
+                    
+                    // Atualizar a lista de favoritos na sidebar
+                    const favorites = await loadFavoritePlaylists();
+                    displayFavoritePlaylists(favorites);
+                } else {
+                    throw new Error('Falha na operação');
+                }
+            } catch (error) {
+                console.error('Erro ao favoritar/desfavoritar:', error);
+                utils.handleError(elements.error, 'Erro ao atualizar favoritos');
+            }
+        });
+
+        card.innerHTML = `
+            <div class="cover-container">
+                <div class="cover-image" style="background-image: url('${playlist.capaUrl || radio.capaUrl || config.defaultCover}')"></div>
+            </div>
+            <div class="card-info">
+                <div class="card-title">${playlist.nome}</div>
+                <div class="card-subtitle">${playlist.descricao || 'Playlist de músicas'}</div>
+            </div>
+        `;
+        
+        // Adicionar a estrela ao card
+        card.querySelector('.cover-container').appendChild(favoriteStar);
+
+        card.addEventListener('click', () => {
+            this.openPlaylistMusicas(radio, playlist);
+        });
+
+        elements.radiosContainer.appendChild(card);
+    });
+},
+
+// Função auxiliar para verificar se uma playlist é favorita
+checkIfPlaylistIsFavorite: async function(playlistId) {
+    try {
+        const response = await api.request(`${config.apiBaseUrl}/api/usuario-playlist-favoritas/${userId}`);
+        if (!response.ok) return false;
+        
+        const favoritePlaylists = await response.json();
+        return favoritePlaylists.some(playlist => playlist.playlistId === playlistId);
+    } catch (error) {
+        console.error('Erro ao verificar favoritos:', error);
+        return false;
+    }
+},
 
         openPlaylistMusicas: async function (radio, playlist) {
             playerState.currentRadio = radio;
@@ -594,7 +940,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 playerState.playlist = musicas;
-                this.displayMusicas(musicas);
+                displayMusicas(musicas);
             } catch (error) {
                 utils.handleError(elements.musicError, `Erro ao carregar músicas: ${error.message}`);
             } finally {
@@ -637,49 +983,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         },
 
-        displayMusicas: function (musicas) {
-            if (!elements.musicList) return;
-
-            elements.musicList.innerHTML = '';
-
-            if (!musicas || musicas.length === 0) {
-                elements.musicList.innerHTML = `
-            <div class="empty-playlist-message">
-                <i class="fas fa-music"></i>
-                <p>Nenhuma música encontrada</p>
-            </div>
-        `;
-                return;
-            }
-            if (!elements.musicList) return;
-
-            elements.musicList.innerHTML = '';
-
-            musicas.forEach((musica, index) => {
-                const card = document.createElement('div');
-                card.className = 'music';
-                card.innerHTML = `
-                    <div class="music-container">
-                        <div class="music-image" style="background-image: url('${musica.capaUrl || playerState.currentRadio.capaUrl || config.defaultCover}')"></div>
-                        <div class="play-overlay">
-                            <i class="fas fa-play"></i>
-                        </div>
-                    </div>
-                    <div class="music-info">
-                        <div class="music-title">${musica.titulo}</div>
-                        <div class="music-subtitle">${musica.artista}</div>
-                        <div class="music-duration">${utils.formatDuration(musica.duracaoSegundos)}</div>
-                    </div>
-                `;
-
-                card.addEventListener('click', () => {
-                    this.playMusic(index);
-                });
-
-                elements.musicList.appendChild(card);
-            });
-        },
-
         performSearch: async function () {
             const term = elements.searchInput ? elements.searchInput.value.trim() : '';
 
@@ -697,10 +1000,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     throw new Error('Nenhum resultado encontrado');
                 }
 
-                // Exibir resultados da pesquisa
                 elements.radiosContainer.innerHTML = '';
 
-                // Mostrar resultados de rádios
                 if (result.radios?.length > 0) {
                     const section = document.createElement('div');
                     section.className = 'search-results-section';
@@ -709,7 +1010,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     this.displayRadios(result.radios);
                 }
 
-                // Mostrar resultados de playlists
                 if (result.playlists?.length > 0) {
                     const section = document.createElement('div');
                     section.className = 'search-results-section';
@@ -725,7 +1025,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     this.displayPlaylists(dummyRadio, result.playlists);
                 }
 
-                // Mostrar resultados de músicas
                 if (result.musicas?.length > 0) {
                     const section = document.createElement('div');
                     section.className = 'search-results-section';
@@ -764,7 +1063,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 }
 
-                // Se nenhum resultado encontrado
                 if ((!result.radios || result.radios.length === 0) &&
                     (!result.playlists || result.playlists.length === 0) &&
                     (!result.musicas || result.musicas.length === 0)) {
@@ -793,7 +1091,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 playerState.currentIndex = index;
                 playerState.currentMusic = playerState.playlist[index];
 
-                // Atualizar UI
                 if (elements.nowPlayingTitle) elements.nowPlayingTitle.textContent = playerState.currentMusic.titulo;
                 if (elements.nowPlayingArtist) elements.nowPlayingArtist.textContent = playerState.currentMusic.artista;
                 if (elements.nowPlaying) elements.nowPlaying.style.display = 'flex';
@@ -805,17 +1102,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     elements.nowPlayingCover.style.backgroundImage = `url('${coverUrl}')`;
                 }
 
-                // Configurar áudio
                 playerState.audioPlayer.src = playerState.currentMusic.urlStream;
                 if (elements.volumeSlider) {
                     playerState.audioPlayer.volume = elements.volumeSlider.value;
                 }
 
-                // Configurar eventos do player
                 playerState.audioPlayer.onended = () => this.playNext();
                 playerState.audioPlayer.onplay = () => this.updatePlayerProgress();
 
-                // Esperar até que o áudio esteja pronto
                 await new Promise((resolve) => {
                     playerState.audioPlayer.oncanplay = () => {
                         playerState.audioPlayer.oncanplay = null;
@@ -824,13 +1118,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     playerState.audioPlayer.load();
                 });
 
-                // Tentar reproduzir
                 try {
                     await playerState.audioPlayer.play();
                     playerState.isPlaying = true;
                 } catch (err) {
                     console.error("Erro ao tocar:", err);
-                    // Segunda tentativa após pequeno delay
                     setTimeout(async () => {
                         try {
                             await playerState.audioPlayer.play();
@@ -902,15 +1194,12 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         closeMusicModal: function () {
-            if (elements.musicModal) {
-                elements.musicModal.style.display = 'none';
-            }
+            closeMusicModal();
         },
 
         resetPlayer: function () {
             playerState.resetPlayer();
         }
-
     };
     window.app = app;
 
