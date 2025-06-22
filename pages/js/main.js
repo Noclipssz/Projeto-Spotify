@@ -3,7 +3,7 @@ let app;
 document.addEventListener('DOMContentLoaded', function () {
     // 1. Configurações iniciais
     const config = {
-        apiBaseUrl: 'http://localhost:8080',
+        apiBaseUrl: 'https://spotify-production-c34a.up.railway.app',
         defaultCover: 'https://via.placeholder.com/300/181818/282828?text=🎵'
     };
 
