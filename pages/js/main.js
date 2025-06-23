@@ -878,7 +878,7 @@ createRadioCard: function(radio) {
 displayPlaylists: function (radio, playlists) {
     elements.radiosContainer.innerHTML = `
         <div class="breadcrumb">
-            <span onclick="app.loadRadios()">Rádios</span> > ${radio.nome}
+            <span onclick="reloadRadios()">Rádios</span> > ${radio.nome}
         </div>
     `;
 
@@ -1251,7 +1251,163 @@ checkIfPlaylistIsFavorite: async function(playlistId) {
         sessionStorage.removeItem('currentUser');
         window.location.href = 'login.html';
     };
+    // 10. Funções globais adicionais
+window.reloadRadios = function() {
+    if (window.app && typeof app.loadRadios === 'function') {
+        app.loadRadios();
+    } else {
+        console.error('App ou função loadRadios não disponível');
+    }
+};
+
+// Tornar a função acessível diretamente também
+window.loadRadios = window.reloadRadios;
+
 
     // 9. Inicializar a aplicação
     app.init();
 });
+// ===== CONTROLE DA SIDEBAR MOBILE =====
+
+// Adicione este código ao seu arquivo JavaScript existente ou inclua após o DOMContentLoaded
+
+function initializeMobileSidebar() {
+    // Criar botão hamburger se não existir
+    if (!document.querySelector('.hamburger-btn')) {
+        const hamburgerBtn = document.createElement('button');
+        hamburgerBtn.className = 'hamburger-btn';
+        hamburgerBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        document.body.appendChild(hamburgerBtn);
+    }
+
+    // Criar overlay se não existir
+    if (!document.querySelector('.sidebar-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    const hamburgerBtn = document.querySelector('.hamburger-btn');
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.querySelector('.sidebar-overlay');
+
+    // Função para abrir sidebar
+    function openSidebar() {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden'; // Previne scroll do body
+    }
+
+    // Função para fechar sidebar
+    function closeSidebar() {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = 'auto'; // Restaura scroll do body
+    }
+
+    // Event listeners
+    hamburgerBtn.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+
+    // Fechar sidebar ao clicar em um item (opcional)
+    const sidebarItems = sidebar.querySelectorAll('.menu-item, .sidebar-playlist, .playlist');
+    sidebarItems.forEach(item => {
+        item.addEventListener('click', () => {
+            // Só fecha no mobile (telas menores que 768px)
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+        });
+    });
+
+    // Fechar sidebar com tecla ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+            closeSidebar();
+        }
+    });
+
+    // Ajustar comportamento quando redimensionar a tela
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            closeSidebar();
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+// Inicializar quando o DOM estiver carregado
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeMobileSidebar);
+} else {    
+    initializeMobileSidebar();
+}
+
+// ===== MELHORIAS PARA FAVORITOS NO MOBILE =====
+
+function optimizeFavoritesForMobile() {
+    const favoritesSection = document.querySelector('.favorites');
+    
+    if (favoritesSection && window.innerWidth <= 768) {
+        // Adicionar scroll horizontal se necessário para muitos favoritos
+        const favoritesList = favoritesSection.querySelector('#favoritesList');
+        if (favoritesList && favoritesList.children.length > 6) {
+            favoritesList.style.maxHeight = '300px';
+            favoritesList.style.overflowY = 'auto';
+        }
+    }
+}
+
+// Chamar quando a tela for redimensionada
+window.addEventListener('resize', optimizeFavoritesForMobile);
+
+// ===== OTIMIZAÇÕES PARA TOUCH NO MOBILE =====
+
+function initializeTouchOptimizations() {
+    // Aumentar área de toque para elementos pequenos no mobile
+    if ('ontouchstart' in window) {
+        const style = document.createElement('style');
+        style.textContent = `
+            @media (max-width: 768px) {
+                .control-btn,
+                .play-overlay,
+                .close-btn,
+                .favorite-btn-modal {
+                    min-width: 44px;
+                    min-height: 44px;
+                }
+                .favorite-star {
+                    min-width: 12px;
+                    min-height: 12px;
+                }
+
+                .menu-item,
+                .sidebar-playlist {
+                    min-height: 48px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}
+
+// Inicializar otimizações de toque
+initializeTouchOptimizations();
+
+// ===== SCROLL SUAVE PARA MOBILE =====
+
+function initializeSmoothScroll() {
+    const containers = document.querySelectorAll('#radiosContainer, .section-container, .sidebar');
+    
+    containers.forEach(container => {
+        if (container) {
+            container.style.scrollBehavior = 'smooth';
+            
+            // Prevenir bounce no iOS
+            container.style.webkitOverflowScrolling = 'touch';
+        }
+    });
+}
+
+// Inicializar scroll suave
+initializeSmoothScroll();
