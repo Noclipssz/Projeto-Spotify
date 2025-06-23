@@ -631,8 +631,8 @@ header {
 
 .close-btn {
     position: absolute;
-    top: 24px;
-    right: 24px;
+    top: 1px;
+    right: 1px;
     background: rgba(0, 0, 0, 0.7);
     border: none;
     color: #ffffff;
@@ -656,15 +656,15 @@ header {
 
 .favorite-btn-modal {
     position: absolute;
-    bottom: 24px;
-    right: 24px;
+    bottom: 10px;
+    left: 133px;
     background: rgba(0, 0, 0, 0.7);
     border: none;
     color: #ffffff;
     font-size: 18px;
     cursor: pointer;
-    width: 48px;
-    height: 48px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -1299,10 +1299,10 @@ header {
         font-size: 14px;
     }
     .favorite-star{
-        width: 20px;
-        height: 20px;
+        width: 30px;
+        height: 30px;
         top: 30px;
-        right: -5px;
+        right: 5px;
     }
     
     #playPauseBtn {

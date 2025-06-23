@@ -1371,7 +1371,6 @@ function initializeTouchOptimizations() {
             @media (max-width: 768px) {
                 .control-btn,
                 .play-overlay,
-                .close-btn,
                 .favorite-btn-modal {
                     min-width: 44px;
                     min-height: 44px;
@@ -1380,6 +1379,8 @@ function initializeTouchOptimizations() {
                     min-width: 12px;
                     min-height: 12px;
                 }
+                    .close-btn{
+                    magin-bottom: 10px;}
 
                 .menu-item,
                 .sidebar-playlist {
