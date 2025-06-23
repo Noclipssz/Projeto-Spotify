@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const user = sessionStorage.getItem('currentUser');
 
         if (!token || !user) {
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
             return false;
         }
 
@@ -43,6 +43,8 @@ document.addEventListener('DOMContentLoaded', function () {
         searchInput: document.getElementById('searchInput'),
         searchButton: document.getElementById('searchButton'),
         clearSearch: document.getElementById('clearSearch'),
+
+        menu: document.getElementById('menu-item'),
 
         // Conteúdo principal
         loading: document.getElementById('loading'),
@@ -288,9 +290,6 @@ document.addEventListener('DOMContentLoaded', function () {
         elements.favorites.innerHTML = '';
 
         const title = document.createElement('div');
-        title.className = 'section-title';
-        title.innerHTML = '<i class="fas fa-star"></i> <span>Playlists Favoritas</span>';
-        elements.favorites.appendChild(title);
 
         if (!playlists || playlists.length === 0) {
             const emptyMsg = document.createElement('div');
@@ -493,8 +492,10 @@ document.addEventListener('DOMContentLoaded', function () {
         },
 
         setupEventListeners: function () {
-            document.querySelector('.logo-container')?.addEventListener('click', () => this.loadPlaylists());
-            document.querySelector('.menu-item')?.addEventListener('click', () => this.loadPlaylists());
+
+            document.querySelector('.logo')?.addEventListener('click', () => loadRadios());
+            document.querySelector('.logo-container')?.addEventListener('click', () => loadRadios());
+            document.querySelector('.menu-item')?.addEventListener('click', () => loadRadios());
             
             document.querySelectorAll('.breadcrumb span').forEach(el => {
                 el.addEventListener('click', () => this.loadRadios());
@@ -595,11 +596,7 @@ document.addEventListener('DOMContentLoaded', function () {
             elements.userPlaylists.innerHTML = '';
 
             const favoritesItem = document.createElement('div');
-            favoritesItem.className = 'playlist favorites';
-            favoritesItem.innerHTML = `
-                <div class="playlist-title">Músicas Curtidas</div>
-                <div class="playlist-info">Playlist</div>
-            `;
+
             favoritesItem.addEventListener('click', () => this.loadFavoriteSongs());
             elements.userPlaylists.appendChild(favoritesItem);
 
@@ -677,23 +674,68 @@ document.addEventListener('DOMContentLoaded', function () {
                 elements.musicLoading.style.display = 'none';
             }
         },
+    displayGroupedRadios: function(groupedRadios) {
+    elements.radiosContainer.innerHTML = '';
 
-        loadPlaylists: async function () {
-            try {
-                elements.loading.style.display = 'block';
-                const response = await fetch(`${config.apiBaseUrl}/api/radios`);
-                if (!response.ok) throw new Error(`Erro ${response.status}`);
-                
-                const radios = await response.json();
-                this.displayRadios(radios);
-            } catch (error) {
-                utils.handleError(elements.error, `Erro ao carregar rádios: ${error.message}`);
-            } finally {
-                elements.loading.style.display = 'none';
-            }
-        },
+    const groupsContainer = document.createElement('div');
+    groupsContainer.className = 'radio-groups-container';
 
-// Substituir a função loadRadios por:
+    for (const [groupName, radios] of Object.entries(groupedRadios)) {
+        if (radios.length === 0) continue;
+
+        const groupSection = document.createElement('div');
+        groupSection.className = 'radio-group';
+        groupSection.innerHTML = `
+            <h2 class="group-title">${this.formatGroupName(groupName)}</h2>
+            <div class="group-radios" id="group-${groupName}"></div>
+        `;
+
+        const radiosContainer = groupSection.querySelector(`.group-radios`);
+        
+        radios.forEach(radio => {
+            const card = this.createRadioCard(radio);
+            radiosContainer.appendChild(card);
+        });
+
+        groupsContainer.appendChild(groupSection);
+    }
+
+    elements.radiosContainer.appendChild(groupsContainer);
+},
+createRadioCard: function(radio) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+        <div class="cover-container">
+            <div class="cover-image" style="background-image: url('${radio.capaUrl || config.defaultCover}')"></div>
+            <div class="play-overlay">
+                <i class="fas fa-play"></i>
+            </div>
+        </div>
+        <div class="card-info">
+            <div class="card-title">${radio.nome}</div>
+            ${radio.playlists?.length > 0 ? 
+              `<div class="card-subtitle">${radio.playlists.length} playlists</div>` : 
+              '<div class="card-subtitle">Rádio</div>'}
+        </div>
+    `;
+
+    card.addEventListener('click', () => {
+        if (radio.playlists?.length > 0) {
+            this.openRadioPlaylists(radio);
+        } else {
+            // Se não tem playlists, tratar como playlist única
+            this.openPlaylistMusicas(radio, {
+                id: radio.id,
+                nome: radio.nome,
+                descricao: `Músicas de ${radio.nome}`,
+                capaUrl: radio.capaUrl
+            });
+        }
+    });
+
+    return card;
+},
 loadRadios: async function () {
     utils.showLoading();
     elements.radiosContainer.innerHTML = '';
