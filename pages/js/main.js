@@ -306,9 +306,6 @@ document.addEventListener('DOMContentLoaded', function () {
             playlistElement.innerHTML = `
                 <div class="playlist-cover" 
                      style="background-image: url('${playlist.capaUrl || config.defaultCover}')">
-                    <div class="favorite-star active">
-                        <i class="fas fa-star"></i>
-                    </div>
                 </div>
                 <div class="playlist-info">
                     <div class="playlist-name">${playlist.nome}</div>

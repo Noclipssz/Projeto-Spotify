@@ -48,11 +48,28 @@ body {
     padding-bottom: 20px;
 }
 
-.sidebar::-webkit-scrollbar {
+.library::-webkit-scrollbar {
     width: 8px;
 }
 
-.sidebar::-webkit-scrollbar-track {
+.library::-webkit-scrollbar-track {
+    background: #121212;
+}
+
+.library::-webkit-scrollbar-thumb {
+    background: #404040;
+    border-radius: 4px;
+}
+
+.library::-webkit-scrollbar-thumb:hover {
+    background: #1db954;
+}
+
+.library::-webkit-scrollbar {
+    width: 8px;
+}
+
+.library::-webkit-scrollbar-track {
     background: #121212;
 }
 
