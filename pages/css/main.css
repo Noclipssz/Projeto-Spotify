@@ -541,9 +541,9 @@ header {
 .favorite-star {
     position: absolute;
     top: 35px;
-    right: -3px;
-    width: 18;
-    height: 18px;
+    right: 3px;
+    width: 4%;
+    height: 13%;
     background: rgba(0, 0, 0, 0.7);
     border-radius: 50%;
     display: flex;
@@ -551,7 +551,7 @@ header {
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s ease;
-    opacity: 0;
+    opacity: 100;
     backdrop-filter: blur(10px);
 }
 
