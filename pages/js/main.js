@@ -1446,7 +1446,7 @@ function salvarNome() {
     }
 
     // Faz a requisição para a API
-    fetch('http://localhost:8080/api/usuario/atualizar-nome-por-email', {
+    fetch('https://spotify-production-0cbf.up.railway.app/api/usuario/atualizar-nome-por-email', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
