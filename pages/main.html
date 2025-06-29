@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,7 @@
 
 <body>
   <div id="particles-js"></div>
-  
+
   <!-- Sidebar -->
   <div class="sidebar">
     <div class="logo-container" onclick="reloadRadios()">
@@ -24,7 +25,10 @@
         <i class="fas fa-home"></i>
         <span>Início</span>
       </div>
-      
+      <div class="menu-item" onclick="abrirModalUsuario()">
+        <i class="fa-solid fa-circle-user"></i>
+        <span>Seu Perfil</span>
+      </div>
       <div class="menu-item" onclick="document.getElementById('searchInput').focus()">
         <i class="fas fa-search"></i>
         <span>Buscar</span>
@@ -131,7 +135,37 @@
     </div>
   </div>
 
+  <!-- Modal de Usuário -->
+  <div id="usrModalUsuario" class="usr-modal">
+    <div class="usr-modal-content">
+      <span class="usr-close" onclick="fecharModal('usrModalUsuario')">&times;</span>
+      <h2>Perfil</h2>
+      <p>
+        <strong>Nome:</strong> <span id="usrNomeUsuario"></span>
+        <button class="usr-btn-edit" onclick="abrirModalEditarNome()">Editar</button>
+      </p>
+      <p><strong>Email:</strong> <span id="usrEmailUsuario"></span></p>
+      <div class="usr-btn-group">
+        <button class="usr-btn-primary-logout" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Edição de Nome -->
+  <div id="usrModalEditarNome" class="usr-modal">
+    <div class="usr-modal-content">
+      <span class="usr-close" onclick="fecharModal('usrModalEditarNome')">&times;</span>
+      <h2>Editar Nome</h2>
+      <input type="text" id="usrInputNovoNome">
+      <div class="usr-btn-group">
+        <button class="usr-btn-primary" onclick="salvarNome()">Salvar</button>
+        <button class="usr-btn-secondary" onclick="cancelarEdicao()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
   <script src="js/main.js"></script>
 </body>
+
 </html>
