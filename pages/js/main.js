@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 sessionStorage.removeItem('authToken');
                 sessionStorage.removeItem('currentUser');
                 alert('Sessão expirada. Faça login novamente.');
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
                 return;
             }
 
@@ -1246,7 +1246,7 @@ checkIfPlaylistIsFavorite: async function(playlistId) {
     window.logout = function () {
         sessionStorage.removeItem('authToken');
         sessionStorage.removeItem('currentUser');
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     };
     // 10. Funções globais adicionais
 window.reloadRadios = function() {
@@ -1392,20 +1392,176 @@ function initializeTouchOptimizations() {
 // Inicializar otimizações de toque
 initializeTouchOptimizations();
 
-// ===== SCROLL SUAVE PARA MOBILE =====
+// Preenche os dados no modal
+function carregarDadosUsuario() {
+  const user = sessionStorage.getItem('currentUser');
+  if (!user) return;
 
-function initializeSmoothScroll() {
-    const containers = document.querySelectorAll('#radiosContainer, .section-container, .sidebar');
-    
-    containers.forEach(container => {
-        if (container) {
-            container.style.scrollBehavior = 'smooth';
-            
-            // Prevenir bounce no iOS
-            container.style.webkitOverflowScrolling = 'touch';
-        }
-    });
+  try {
+    const dados = JSON.parse(user);
+    document.getElementById('usrNomeUsuario').innerText = dados.nome || 'Nome não disponível';
+    document.getElementById('usrEmailUsuario').innerText = dados.email || 'Email não disponível';
+  } catch (e) {
+    console.error('Erro ao carregar dados do usuário:', e);
+  }
 }
 
-// Inicializar scroll suave
-initializeSmoothScroll();
+// Abertura do modal de usuário
+function abrirModalUsuario() {
+  carregarDadosUsuario();
+  document.getElementById('usrModalUsuario').classList.add('active');
+}
+
+function abrirModalEditarNome() {
+  document.getElementById('usrInputNovoNome').value = document.getElementById('usrNomeUsuario').innerText;
+  fecharModal('usrModalUsuario');
+  document.getElementById('usrModalEditarNome').classList.add('active');
+}
+
+// API para atualizar o nome do usuário
+function salvarNome() {
+  const novoNome = document.getElementById('usrInputNovoNome').value;
+
+  if (novoNome.trim() === '') {
+    alert('Por favor, insira um nome válido.');
+    return;
+  }
+
+  // Pega os dados do usuário atual do sessionStorage
+  const user = sessionStorage.getItem('currentUser');
+  if (!user) {
+    alert('Usuário não encontrado. Faça login novamente.');
+    return;
+  }
+
+  try {
+    const dados = JSON.parse(user);
+    const email = dados.email; // Usaremos o email para identificar o usuário
+
+    // Desabilita o botão para evitar múltiplos cliques
+    const btnSalvar = document.querySelector('#usrModalEditarNome button[onclick="salvarNome()"]');
+    if (btnSalvar) {
+      btnSalvar.disabled = true;
+      btnSalvar.textContent = 'Salvando...';
+    }
+
+    // Faz a requisição para a API
+    fetch('http://localhost:8080/api/usuario/atualizar-nome-por-email', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        email: email,
+        nome: novoNome.trim() 
+      })
+    })
+      .then(response => {
+        if (!response.ok) {
+          return response.json().then(errorData => {
+            throw new Error(errorData.message || 'Erro ao atualizar o nome');
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          // Atualiza o nome na interface
+          document.getElementById('usrNomeUsuario').innerText = data.nome;
+          
+          // Atualiza os dados no sessionStorage
+          const dadosAtualizados = JSON.parse(sessionStorage.getItem('currentUser'));
+          dadosAtualizados.nome = data.nome;
+          sessionStorage.setItem('currentUser', JSON.stringify(dadosAtualizados));
+          
+          // Fecha o modal de edição e abre o modal principal
+          fecharModal('usrModalEditarNome');
+          abrirModalUsuario();
+          
+          alert('Nome atualizado com sucesso!');
+        } else {
+          throw new Error(data.message || 'Erro ao atualizar o nome');
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao atualizar o nome:', error);
+        alert('Não foi possível atualizar o nome: ' + error.message);
+      })
+      .finally(() => {
+        // Reabilita o botão
+        if (btnSalvar) {
+          btnSalvar.disabled = false;
+          btnSalvar.textContent = 'Salvar';
+        }
+      });
+  } catch (e) {
+    console.error('Erro ao processar dados do usuário:', e);
+    alert('Erro interno. Tente fazer login novamente.');
+  }
+}
+
+function cancelarEdicao() {
+  fecharModal('usrModalEditarNome');
+  abrirModalUsuario();
+}
+
+// Lógica de logout
+function logout() {
+  // Confirma se o usuário realmente quer sair
+  if (confirm('Tem certeza que deseja sair?')) {
+    try {
+      // Remove os dados do usuário do sessionStorage
+      sessionStorage.removeItem('currentUser');
+      
+      // Remove outros dados relacionados ao usuário, se houver
+      sessionStorage.removeItem('authToken'); // caso você use tokens
+      localStorage.removeItem('rememberUser'); // caso tenha "lembrar usuário"
+      
+      // Redireciona para a página de login
+      window.location.href = 'index.html'; // ajuste o caminho conforme sua estrutura
+      
+    } catch (error) {
+      console.error('Erro durante o logout:', error);
+      alert('Erro ao fazer logout. Tente novamente.');
+    }
+  }
+}
+
+function fecharModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+// Função auxiliar para verificar se o usuário está logado
+function verificarLogin() {
+  const user = sessionStorage.getItem('currentUser');
+  if (!user) {
+    alert('Sessão expirada. Faça login novamente.');
+    window.location.href = 'index.html'; // Redireciona para a página inicial ou de login
+    return false;
+  }
+  return true;
+}
+
+// Adiciona validação em tempo real no campo de nome
+document.addEventListener('DOMContentLoaded', function() {
+  const inputNome = document.getElementById('usrInputNovoNome');
+  if (inputNome) {
+    inputNome.addEventListener('input', function() {
+      const nome = this.value.trim();
+      const btnSalvar = document.querySelector('#usrModalEditarNome button[onclick="salvarNome()"]');
+      
+      if (btnSalvar) {
+        if (nome.length < 2) {
+          btnSalvar.disabled = true;
+          this.style.borderColor = '#ff4444';
+        } else if (nome.length > 100) {
+          btnSalvar.disabled = true;
+          this.style.borderColor = '#ff4444';
+        } else {
+          btnSalvar.disabled = false;
+          this.style.borderColor = '#ddd';
+        }
+      }
+    });
+  }
+});

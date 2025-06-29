@@ -542,18 +542,31 @@ header {
     position: absolute;
     top: 35px;
     right: 3px;
-    width: 4%;
-    height: 13%;
+
+    width: clamp(28px, 4vw, 44px);
+    aspect-ratio: 1 / 1;
+
     background: rgba(0, 0, 0, 0.7);
     border-radius: 50%;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     cursor: pointer;
     transition: all 0.3s ease;
-    opacity: 100;
+    opacity: 1;
+
     backdrop-filter: blur(10px);
 }
+
+@media screen and (min-width: 768px) {
+    .favorite-star {
+        width: 32px;
+    }
+}
+
+
 
 .card:hover .favorite-star {
     opacity: 1;
@@ -875,8 +888,13 @@ header {
 }
 
 @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
 }
 
 #nowPlayingTitle {
@@ -1031,16 +1049,16 @@ header {
     .sidebar {
         width: 240px;
     }
-    
+
     .main-content {
         margin-left: 240px;
     }
-    
+
     .group-radios {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 16px;
     }
-    
+
     .welcome-message {
         font-size: 24px;
     }
@@ -1051,90 +1069,91 @@ header {
         transform: translateX(-100%);
         width: 280px;
     }
-    
+
     .sidebar.active {
         transform: translateX(0);
     }
-    
+
     .main-content {
         margin-left: 0;
     }
-    
+
     header {
         padding: 12px 16px;
         flex-direction: column;
         gap: 16px;
         align-items: stretch;
     }
-    
+
     .welcome-message {
         font-size: 20px;
         text-align: center;
     }
-    
+
     .search-container {
         max-width: none;
     }
-    
+
     #radiosContainer {
         padding: 16px;
     }
-    
+
     .group-radios {
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
         gap: 12px;
     }
-    
+
     .cover-image {
         height: 160px;
     }
-    
+
     .modal-content {
         width: 95%;
         height: 95%;
         margin: 2.5% auto;
     }
-    
+
     .modal-header {
         padding: 24px 16px;
         min-height: 150px;
     }
-    
+
     .modal-header h2 {
         font-size: 24px;
     }
-    
+
     .section-container {
         padding: 16px;
     }
-    
+
     .music-grid {
         grid-template-columns: 1fr;
         gap: 12px;
     }
-    
+
     .now-playing {
         padding: 12px 16px;
         height: 80px;
     }
-    
+
     .player-controls {
         margin: 0 16px;
         gap: 12px;
     }
-    
+
     .progress-container {
         margin: 0 8px;
     }
-    
+
     .volume-control {
         display: none;
     }
-    
+
     .time-display {
         display: none;
     }
 }
+
 /* ===== BOTÃO HAMBURGER MOBILE ===== */
 .hamburger-btn {
     display: none;
@@ -1182,33 +1201,34 @@ header {
     .sidebar {
         width: 240px;
     }
-    
+
     .main-content {
         margin-left: 240px;
     }
-    
+
     .group-radios {
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 16px;
     }
-    
+
     .welcome-message {
         font-size: 24px;
     }
-    
+
     .search-container {
         max-width: 300px;
     }
 }
 
 @media (max-width: 768px) {
+
     /* Mostrar botão hamburger */
     .hamburger-btn {
         display: flex;
         align-items: center;
         justify-content: center;
     }
-    
+
     /* Sidebar escondida por padrão no mobile */
     .sidebar {
         transform: translateX(-100%);
@@ -1216,17 +1236,17 @@ header {
         z-index: 200;
         box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
     }
-    
+
     .sidebar.active {
         transform: translateX(0);
     }
-    
+
     /* Conteúdo principal ocupa toda a largura */
     .main-content {
         margin-left: 0;
         width: 100%;
     }
-    
+
     /* Header mobile */
     header {
         padding: 80px 16px 16px;
@@ -1234,34 +1254,35 @@ header {
         gap: 16px;
         align-items: stretch;
     }
-    
+
     .welcome-message {
         font-size: 20px;
         text-align: center;
         margin-top: 8px;
     }
-    
+
     .search-container {
         max-width: none;
         width: 100%;
     }
-    
+
     /* Container principal */
     #radiosContainer {
         padding: 16px;
-        padding-bottom: 100px; /* Espaço para o player */
+        padding-bottom: 100px;
+        /* Espaço para o player */
     }
-    
+
     /* Grid responsivo */
     .group-radios {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 12px;
     }
-    
+
     .cover-image {
         height: 140px;
     }
-    
+
     /* Modal mobile */
     .modal-content {
         width: 95%;
@@ -1269,101 +1290,103 @@ header {
         margin: 5% auto;
         border-radius: 12px;
     }
-    
+
     .modal-header {
         padding: 20px 16px;
         min-height: 120px;
     }
-    
+
     .modal-header h2 {
         font-size: 20px;
     }
-    
+
     .section-container {
         padding: 16px;
         max-height: calc(90vh - 120px);
     }
-    
+
     .music-grid {
         grid-template-columns: 1fr;
         gap: 8px;
     }
-    
+
     .music {
         padding: 12px;
     }
-    
+
     /* Player mobile */
     .now-playing {
         padding: 12px 16px;
         height: 75px;
     }
-    
+
     .now-playing-cover {
         width: 48px;
         height: 48px;
         margin-right: 12px;
     }
-    
+
     .player-controls {
         margin: 0 12px;
         gap: 8px;
     }
-    
+
     .control-btn {
         width: 32px;
         height: 32px;
         font-size: 14px;
     }
-    .favorite-star{
+
+    .favorite-star {
         width: 30px;
         height: 30px;
         top: 30px;
         right: 5px;
     }
-    
+
     #playPauseBtn {
         width: 36px;
         height: 36px;
         font-size: 16px;
     }
-    
+
     .progress-container {
         margin: 0 8px;
         height: 3px;
     }
-    
+
     /* Esconder controles menos importantes no mobile */
     .volume-control {
         display: none;
     }
-    
+
     .time-display {
         display: none;
     }
-    
+
     /* Cards dos favoritos na sidebar mobile */
     .sidebar-playlist {
         margin: 0 8px 4px;
         padding: 12px 16px;
     }
-    
+
     .playlist-cover {
         width: 44px;
         height: 44px;
         margin-right: 12px;
     }
-    
+
     .playlist-name {
         font-size: 13px;
     }
-    
+
     .playlist-description {
         font-size: 11px;
     }
 }
 
 @media (max-width: 480px) {
+
     /* Botão hamburger menor */
     .hamburger-btn {
         width: 44px;
@@ -1372,35 +1395,35 @@ header {
         top: 12px;
         left: 12px;
     }
-    
+
     /* Sidebar mais estreita */
     .sidebar {
         width: 280px;
     }
-    
+
     /* Logo menor */
     .logo-container {
         padding: 16px;
     }
-    
+
     .logo {
         width: 36px;
         height: 36px;
     }
-    
+
     .logo-container h1 {
         font-size: 18px;
     }
-    
+
     /* Header ainda mais compacto */
     header {
         padding: 70px 12px 12px;
     }
-    
+
     .welcome-message {
         font-size: 18px;
     }
-    
+
     /* Container principal */
     #radiosContainer {
         padding: 12px;
@@ -1412,117 +1435,117 @@ header {
         grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
         gap: 10px;
     }
-    
+
     .cover-image {
         height: 120px;
     }
-    
+
     .card {
         padding: 12px;
     }
-    
+
     .card-title {
         font-size: 14px;
     }
-    
+
     .card-subtitle {
         font-size: 12px;
     }
-    
+
     /* Player ainda mais compacto */
     .now-playing {
         height: 70px;
         padding: 8px 12px;
     }
-    
+
     .now-playing-cover {
         width: 44px;
         height: 44px;
         margin-right: 8px;
     }
-    
+
     #nowPlayingTitle {
         font-size: 12px;
         max-width: 120px;
     }
-    
+
     #nowPlayingArtist {
         font-size: 11px;
         max-width: 120px;
     }
-    
+
     .player-controls {
         margin: 0 8px;
         gap: 6px;
     }
-    
+
     .control-btn {
         width: 28px;
         height: 28px;
         font-size: 12px;
     }
-    
+
     #playPauseBtn {
         width: 32px;
         height: 32px;
         font-size: 14px;
     }
-    
+
     .progress-container {
         margin: 0 6px;
         height: 2px;
     }
-    
+
     /* Modal ultra compacto */
     .modal-content {
         width: 98%;
         height: 95%;
         margin: 2.5% auto;
     }
-    
+
     .modal-header {
         padding: 16px 12px;
         min-height: 100px;
     }
-    
+
     .modal-header h2 {
         font-size: 18px;
     }
-    
+
     .section-container {
         padding: 12px;
     }
-    
+
     /* Favoritos na sidebar ainda mais compactos */
     .sidebar-playlist {
         margin: 0 6px 3px;
         padding: 10px 12px;
     }
-    
+
     .playlist-cover {
         width: 40px;
         height: 40px;
         margin-right: 10px;
     }
-    
+
     .playlist-name {
         font-size: 12px;
     }
-    
+
     .playlist-description {
         font-size: 10px;
     }
-    
+
     .section-title {
         font-size: 11px;
         padding: 6px 12px 8px;
     }
-    
+
     .menu-item {
         padding: 10px 16px;
         margin: 0 8px;
     }
-    
+
     .menu-item span {
         font-size: 13px;
     }
@@ -1545,4 +1568,175 @@ header {
         margin: 0 12px;
         border-radius: 8px;
     }
+}
+
+:root {
+    --usr-green: #00c851;
+    --usr-green-dark: #007e33;
+    --usr-red: #c80000;
+    --usr-red-dark: #7e0000;
+    --usr-bg: #121212;
+    --usr-modal-bg: #1e1e1e;
+    --usr-text: #fff;
+    --usr-input: #2a2a2a;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--usr-bg);
+    color: var(--usr-text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.usr-open-btn {
+    padding: 12px 24px;
+    background: linear-gradient(90deg, var(--usr-green), var(--usr-green-dark));
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.usr-open-btn:hover {
+    transform: scale(1.05);
+}
+
+.usr-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.usr-modal.active {
+    display: flex;
+}
+
+.usr-modal-content {
+    background: var(--usr-modal-bg);
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 380px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.usr-modal-content h2 {
+    font-size: 22px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--usr-green);
+    display: inline-block;
+    padding-bottom: 4px;
+}
+
+.usr-modal-content p {
+    margin: 10px 0;
+    font-size: 15px;
+}
+
+.usr-btn-edit {
+    padding: 4px 10px;
+    font-size: 12px;
+    margin-left: 8px;
+    background-color: #2e2e2e;
+    color: var(--usr-green);
+    border: 1px solid var(--usr-green);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    vertical-align: middle;
+}
+
+.usr-btn-edit:hover {
+    background-color: var(--usr-green);
+    color: var(--usr-bg);
+}
+
+.usr-close {
+    position: absolute;
+    top: 18px;
+    right: 22px;
+    font-size: 22px;
+    color: #aaa;
+    cursor: pointer;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background-color: var(--usr-input);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+}
+
+.usr-btn-group {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+
+.usr-btn-group button {
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.usr-btn-primary {
+    background: linear-gradient(90deg, var(--usr-green), var(--usr-green-dark));
+    color: white;
+}
+
+.usr-btn-primary-logout {
+    background: linear-gradient(90deg, var(--usr-red), var(--usr-red-dark));
+    color: white;
+}
+
+.usr-btn-primary:hover {
+    opacity: 0.9;
+}
+
+.usr-btn-primary-logout:hover {
+    opacity: 0.9;
+}
+
+.usr-btn-secondary {
+    background-color: #444;
+    color: white;
+}
+
+.usr-btn-secondary:hover {
+    opacity: 0.9;
 }
